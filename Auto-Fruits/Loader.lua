@@ -1,16 +1,43 @@
---// LOADER
+--// LOADER FINAL (AJUSTADO PRO SEU REPO)
 
-local Modules = script:WaitForChild("Modules")
+repeat task.wait() until game:IsLoaded()
 
-local Team = require(Modules.Team)
-local Collect = require(Modules.Collect)
-local Store = require(Modules.Store)
-local ServerHop = require(Modules.ServerHop)
-local Rejoin = require(Modules.Rejoin)
-local ErrorHandler = require(Modules.ErrorHandler)
-local GlobalError = require(Modules.GlobalError)
-local MainLoop = require(Modules.MainLoop)
+local BASE = "https://raw.githubusercontent.com/blackxscripts/bloxfruits/main/Auto-Fruits/Modules/"
 
--- Inicializações
-GlobalError.Init(Rejoin)
-MainLoop.Start(Team, Collect, Store, ServerHop, ErrorHandler)
+local function Load(module)
+    local success, result = pcall(function()
+        return loadstring(game:HttpGet(BASE .. module .. ".lua"))()
+    end)
+    
+    if success then
+        return result
+    else
+        warn("[Loader Error]:", module)
+        return nil
+    end
+end
+
+-- Modules
+local Team = Load("Team")
+local Collect = Load("Collect")
+local Store = Load("Store")
+local ServerHop = Load("ServerHop")
+local Rejoin = Load("Rejoin")
+local ErrorHandler = Load("ErrorHandler")
+local GlobalError = Load("GlobalError")
+local MainLoop = Load("MainLoop")
+
+-- Safety check
+if not (Team and Collect and Store and ServerHop and Rejoin and ErrorHandler and GlobalError and MainLoop) then
+    warn("Erro ao carregar módulos")
+    return
+end
+
+-- Init
+pcall(function()
+    GlobalError.Init(Rejoin)
+end)
+
+pcall(function()
+    MainLoop.Start(Team, Collect, Store, ServerHop, ErrorHandler)
+end)
